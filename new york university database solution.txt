@@ -1,0 +1,801 @@
+New York University Computer Science Department Courant Institute of Mathematical Sciences Course Title: Database Systems Course Number: CSCIGA.2433-001
+New York University
+Computer Science Department
+Courant Institute of Mathematical Sciences
+
+Course Title: Database Systems Course Number: CSCIGA.2433-001
+Instructor: Jean-Claude Franchitti Session: 1
+
+Assignment #2
+
+1.13 - Give examples of systems in which it may make sense to use traditional file processing
+instead of a database approach.
+
+Answer:
+1. Small internal utility to locate files
+2. Small single user application that does not require security (such as a customized calculator or a
+personal address and phone book)
+3. Real-time navigation system (with heavy computation and very little data)
+4. The students may think of others.
+
+2.14 - if you were designing a Web-based system to make airline reservations and to sell airline
+tickets, which DBMS Architecture would you choose from Section 2.5? Why? Why would the other
+architectures not be a good choice?
+
+Answer:
+2.5.4 Three-Tier Client/Server Architecture for Web Application is the best choice. The Client
+consists of Web User Interface. The Web Server contains the application logic which includes all the
+rules and regulations related to the reservation process and the issue of tickets; the Database
+Server contains the DBMS.
+
+2.5.1 Centralized DBMS Architecture would not work since the user interface and database server
+are on different machines for a web-based system.
+
+2.5.2 Basic Client/Server Architecture and 2.5.3 Two-Tier Client/Server Architecture would work if
+the Business Logic can reside on server other than the DBMS Server. In general, if the business
+logic was on the DBMS Server, it will put an excessive burden on the server. If the business logic
+were to reside on the web client, it will burden the communication network as well a possibly thin
+client.
+
+3.14 - Consider the following six relations for an order-processing database application in a
+company:
+CUSTOMER (Cust#, Cname, City)
+ORDER (Order#, Odate, Cust#, Ord_Amt)
+ORDER_ITEM (Order#, Item#, Qty)
+ITEM (Item#, Unit_price)
+SHIPMENT (Order#, Warehouse#, Ship_date)
+WAREHOUSE (Warehouse#, City)
+Here, Ord_Amt refers to total dollar amount of an order; Odate is the date the order was placed;
+Ship_date is the date an order (or part of an order) is shipped from the warehouse. Assume that an
+order can be shipped from several warehouses. Specify the foreign keys for this schema, stating any
+assumptions you make. What other constraints can you think of for this database?
+Answer:
+Strictly speaking, a foreign key is a set of attributes, but when that set contains only one attribute,
+then that attribute itself is often informally called a foreign key. The schema of this question has the
+following five foreign keys:
+
+1. the attribute Cust# of relation ORDER that references relation CUSTOMER,
+2. the attribute Order# of relation ORDER_ITEM that references relation ORDER,
+3. the attribute Item# of relation ORDER_ITEM that references relation ITEM,
+4. the attribute Order# of relation SHIPMENT that references relation ORDER, and
+5. the attribute Warehouse# of relation SHIPMENT that references relation WAREHOUSE.
+We now give the queries in relational algebra:
+
+The above query lists all orders for which no “timely” shipment was made, including orders for which
+no shipment was ever made. It is instructive to compare the above query with the one below that
+lists those orders for which at least one “late” shipment was made.
+
+3.15 - Consider the following relations for a database that keeps track of business trips of
+salespersons in a sales office:
+
+SALESPERSON (SSN, Name, Start_Year, Dept_No)
+TRIP (SSN, From_City, To_City, Departure_Date, Return_Date, Trip_ID)
+EXPENSE (Trip_ID, Account#, Amount)
+
+Specify the foreign keys for this schema, stating any assumptions you make.
+
+Answer:
+The schema of this question has the following two foreign keys:
+
+1. the attribute SSN of relation TRIP that references relation SALESPERSON, and
+2. the attribute Trip_ID of relation EXPENSE that references relation TRIP.
+
+In addition, the attributes Dept_No of relation SALESPERSON and Account# of relation
+EXPENSE are probably also foreign keys referencing other relations of the database not mentioned
+in the question. We now give the queries in relational algebra:
+
+3.18 - Database design often involves decisions about the storage of attributes. For example a
+Social Security Number can be stored as a one attribute or split into three attributes (one for each of
+the three hyphen-deliniated groups of numbers in a Social Security Number—XXX-XX-XXXX).
+However, Social Security Number is usually stored in one attribute. The decision is usually based on
+how the database will be used. This exercise asks you to think about specific situations where
+dividing the SSN is useful.
+
+Answer:
+a. We need the area code (also know as city code in some countries) and perhaps the country
+code (for dialing international phone numbers).
+b. I would recommend storing the numbers in a separate attribute as they have their own
+independent existence. For example, if an area code region were split into two regions, it would
+
+change the area code associated with certain numbers, and having area code in a separate attribute
+will make it is easier to update the area code attribute by itself.
+c. I would recommend splitting first name, middle name, and last name into different attributes as it
+is likely that the names may be sorted and/or retrieved by the last name, etc.
+d. In general, if the each attribute has an independent logical existence based on the application, it
+would make sense to store it in a separate column otherwise there is no clear advantage. For
+example, SSN need not be split into its component unless we are using the subsequences to make
+deductions about validity, geography, etc. In the two cases above, it made logical and business
+sense to split the attributes.
+
+3.20 - Recent changes in privacy laws have disallowed organizations from using SSN to identify
+individuals unless certain restrictions are satisfied. As a result, most US universities cannot use
+SSNs as primary keys (except for financial data). In practice, StudentID, a unique ID, a unique
+identifier, assigned to every student, is likely to be used as the primary key rather than SSN since
+StudentID is usable across all aspects of the system.
+
+a. Some database designers are reluctant to use generated keys (also known as surrogate keys) for
+primary keys (such as StudentID) because they are artificial. Can you propose any natural choices
+of keys that can be used to store the student record in a UNIVERSITY database?
+b. Suppose that you were able to guarantee uniqueness of a natural key that included last name.
+Are you guaranteed that the last name will not change during the lifetime of the database? If the last
+name last name can change, what solutions can you propose for creating a primary key that still
+includes last name but remains unique?
+c. What are the advantages and disadvantages of using generated (surrogate) keys?
+
+Answer:
+a. By keeping the name attributes separated, we allow the possibility of looking these pieces of their
+name. In a practical use, it is not likely that the user will know the correct primary key for a given
+student and so we must consider how a user will locate the correct row without this information. If
+we were to collapse the name into a single attribute, then we have complicated any sort of “lookup
+by name” query; such a query would then require partial string matching and any results might not
+disambiguate between FirstName and LastName. Therefore, a practical system should allow name
+searches by FirstName and LastName; we must leave MiddleInitial separated still to avoid
+ambiguities from combining these pieces together.
+
+b. A single attribute Phone# would no longer suffice if a student were able to have multiple phone
+numbers. We could possibly have multiple rows for a single student to allow this to happen, but then
+we have violated key principles of database design (e.g. having redundant data). A better solution
+would be to include the additional attributes HomePhone, CellPhone, and OfficePhone and allow the
+possibility of these attributes to have no value. Again, this is not most desirable because most
+students will not have all three of these attributes, and we will have many valueless key/attribute
+pairs. An excellent solution would be add an additional relation Phone# (SSN, Type, Number) while
+removing PhoneNumber from the Student relationship. This new relationship would allow the one-
+to-many relationship from students to phone numbers without creating redundant data or wasting
+space on sparse, valueless attributes.
+
+6.16 - Specify the following queries on the COMPANY relational database schema shown in Figure
+3.5, using the relational operators discussed in this chapter. Also show the result of each query as it
+would apply to the database state of Figure 3.6.
+
+(a) Retrieve the names of employees in department 5 who work more than 10 hours per week on
+the 'ProductX' project.
+
+(b) List the names of employees who have a dependent with the same first name as themselves.
+
+(c) Find the names of employees that are directly supervised by 'Franklin Wong'.
+
+(d) For each project, list the project name and the total hours per week (by all employees) spent
+on that project.
+
+(e) Retrieve the names of employees who work on every project.
+
+(f) Retrieve the names of employees who do not work on any project.
+
+(g) For each department, retrieve the department name, and the average salary of employees
+working in that department.
+
+(h) Retrieve the average salary of all female employees.
+
+(i) Find the names and addresses of employees who work on at least one project located in
+Houston but whose department has no location in Houston.
+
+(j) List the last names of department managers who have no dependents.
+
+Answers:
+In the relational algebra, as in other languages, it is possible to specify the same query in multiple
+
+ways. We give one possible solution for each query. We use the symbol s for
+SELECT, P for PROJECT, J for EQUIJOIN, * for NATURAL JOIN, and f for FUNCTION.
+
+(a) EMP_W_X <-- ( s PNAME='ProductX' (PROJECT)) J (PNUMBER),(PNO)
+(WORKS_ON)
+EMP_WORK_10 <-- (EMPLOYEE) J (SSN),(ESSN) ( s HOURS>10 (EMP_W_X))
+RESULT <-- P LNAME,FNAME ( s DNO=5 (EMP_WORK_10))
+
+Result:
+
+LNAME FNAME
+Smith John
+English Joyce
+
+(b) E <-- (EMPLOYEE) J (SSN,FNAME),(ESSN,DEPENDENT_NAME) (DEPENDENT)
+R <-- P LNAME,FNAME (E)
+
+Result (empty):
+
+LNAME FNAME
+
+(c) WONG_SSN <-- P SSN ( s FNAME='Franklin' AND
+LNAME='Wong' (EMPLOYEE))
+WONG_EMPS <-- (EMPLOYEE) J (SUPERSSN),(SSN) (WONG_SSN)
+RESULT <-- P LNAME,FNAME (WONG_EMPS)
+
+Result:
+
+LNAME FNAME
+Smith John
+Narayan Ramesh
+English Joyce
+
+(d) PROJ_HOURS(PNO,TOT_HRS) <-- PNO f SUM HOURS (WORKS_ON)
+RESULT <-- P PNAME,TOT_HRS ( (PROJ_HOURS) J (PNO),(PNUMBER)
+(PROJECT) )
+
+Result:
+
+PNAME TOT_HRS
+ProductX 52.5
+ProductY 37.5
+ProductZ 50.0
+Computerization 55.0
+Reorganization 25.0
+Newbenefits 55.0
+
+(e) PROJ_EMPS(PNO,SSN) <-- P PNO,ESSN (WORKS_ON)
+ALL_PROJS(PNO) <-- P PNUMBER (PROJECT)
+EMPS_ALL_PROJS <-- PROJ_EMPS -:- ALLPROJS (* DIVISION operation *)
+RESULT <-- P LNAME,FNAME (EMPLOYEE * EMP_ALL_PROJS)
+
+Result (empty):
+
+LNAME FNAME
+
+(f) ALL_EMPS <-- P SSN (EMPLOYEE)
+WORKING_EMPS(SSN) <-- P ESSN (WORKS_ON)
+NON_WORKING_EMPS <-- ALL_EMPS - WORKING_EMPS (* DIFFERENCE
+*)
+RESULT <-- P LNAME,FNAME (EMPLOYEE * NON_WORKING_EMPS)
+
+Result (empty):
+
+LNAME FNAME
+
+(g) DEPT_AVG_SALS(DNUMBER,AVG_SAL) <-- DNO f AVG SALARY
+(EMPLOYEE)
+RESULT <-- P DNUMBER,AVG_SAL ( DEPT_AVG_SALS * DEPARTMENT )
+
+Result:
+
+DNUMBER AVG_SAL
+Research 33250
+Administration 31000
+Headquarters 55000
+
+(h) RESULT(AVG_F_SAL) <-- f AVG SALARY ( s SEX='F' (EMPLOYEE) )
+
+Result:
+
+AVG_F_SAL
+31000
+
+(i) E_P_HOU(SSN) <--
+P ESSN (WORKS_ON J(PNO),(PNUMBER) ( s PLOCATION='Houston' (PROJECT)))
+D_NO_HOU <--
+P DNUMBER (DEPARTMENT) - P DNUMBER ( s
+DLOCATION='Houston' (DEPARTMENT))
+E_D_NO_HOU <-- P SSN (EMPLOYEE J(PNO),(DNUMBER) (D_NO_HOU))
+RESULT_EMPS <-- E_P_HOU - E_D_NO_HOU (* this is set DIFFERENCE *)
+RESULT <-- P LNAME,FNAME,ADDRESS (EMPLOYEE * RESULT_EMPS)
+
+Result:
+
+LNAME FNAME ADDRESS
+Wallace Jennifer 291 Berry, Bellaire, TX
+
+(j) DEPT_MANAGERS(SSN)<-- P MGRSSN (DEPARTMENT)
+EMPS_WITH_DEPENDENTS(SSN) <-- P ESSN (DEPENDENT)
+RESULT_EMPS <-- DEPT_MANAGERS - EMPS_WITH_DEPENDENTS
+RESULT <-- P LNAME,FNAME (EMPLOYEE * RESULT_EMPS)
+
+Result:
+
+LNAME FNAME
+Borg James
+
+6.24 - Specify queries (a), (b), (c), (e), (f), (i), and (j) of Exercise 6.16 in both tuple and domain
+relational calculus.
+
+Answer:
+(a) Retrieve the names of employees in department 5 who work more than 10 hours per week on the
+'ProductX' project.
+
+Tuple relational Calculus:
+
+{ e.LNAME, e.FNAME | EMPLOYEE(e) AND e.DNO=5 AND (EXISTS p) (EXISTS w)
+(
+WORKS_ON(w) AND PROJECT(p) AND e.SSN=w.ESSN AND
+w.PNO=p.PNUMBER AND
+p.PNAME='ProductX' AND w.HOURS>10 ) }
+
+Domain relational Calculus:
+
+{ qs | EMPLOYEE(qrstuvwxyz) AND z=5 AND (EXISTS a) (EXISTS b) (EXISTS e)
+(EXISTS f)
+(EXISTS g) ( WORKS_ON(efg) AND PROJECT(abcd) AND t=e AND f=b AND
+a='ProductX' AND
+g>10 ) }
+
+(b) List the names of employees who have a dependent with the same first name as themselves.
+
+Tuple relational Calculus:
+
+{ e.LNAME, e.FNAME | EMPLOYEE(e) AND (EXISTS d) ( DEPENDENT(d) AND
+e.SSN=d.ESSN
+AND e.FNAME=d.DEPENDENT_NAME ) }
+
+Domain relational Calculus:
+
+{ qs | (EXISTS t) (EXISTS a) (EXISTS b) ( EMPLOYEE(qrstuvwxyz) AND
+DEPENDENT(abcde)
+AND a=t AND b=q ) }
+
+(c) Find the names of employees that are directly supervised by 'Franklin Wong'.
+
+Tuple relational Calculus:
+
+{ e.LNAME, e.FNAME | EMPLOYEE(e) AND (EXISTS s) ( EMPLOYEE(s) AND
+s.FNAME='Franklin' AND s.LNAME='Wong' AND e.SUPERSSN=s.SSN ) }
+
+Domain relational Calculus:
+
+{ qs | (EXISTS y) (EXISTS a) (EXISTS c) (EXISTS d) ( EMPLOYEE(qrstuvwxyz) AND
+EMPLOYEE(abcdefghij) AND a='Franklin' AND c='Wong' AND y=d ) }
+
+(e) Retrieve the names of employees who work on every project.
+
+Tuple relational Calculus:
+
+{ e.LNAME, e.FNAME | EMPLOYEE(e) AND (FORALL p) ( NOT(PROJECT(p)) OR
+(EXISTS w) (
+WORKS_ON(w) AND p.PNUMBER=w.PNO AND w.ESSN=e.SSN ) ) }
+
+Domain relational Calculus:
+
+{ qs | (EXISTS t) ( EMPLOYEE(qrstuvwxyz) AND (FORALL b) (
+NOT(PROJECT(abcd)) OR
+(EXISTS e) (EXISTS f) (WORKS_ON(efg) AND e=t AND f=b) ) }
+
+(f) Retrieve the names of employees who do not work on any project.
+
+Tuple relational Calculus:
+
+{ e.LNAME, e.FNAME | EMPLOYEE(e) AND NOT(EXISTS w) ( WORKS_ON(w)
+AND
+w.ESSN=e.SSN ) }
+
+Domain relational Calculus:
+
+{ qs | (EXISTS t) ( EMPLOYEE(qrstuvwxyz) AND NOT(EXISTS a) (
+WORKS_ON(abc) AND a=t )
+)}
+
+(i) Find the names and addresses of employees who work on at least one project located in Houston
+but whose department has no location in Houston.
+
+Tuple relational Calculus:
+
+{ e.LNAME, e.FNAME, e.ADDRESS | EMPLOYEE(e) AND (EXISTS p) (EXISTS w) (
+WORKS_ON(w) AND PROJECT(p) AND e.SSN=w.ESSN AND
+w.PNO=p.PNUMBER AND
+p.PLOCATION='Houston' AND NOT(EXISTS l) ( DEPT_LOCATIONS(l) AND
+e.DNO=l.DNUMBER
+AND l.DLOCATION='Houston' ) ) }
+
+Domain relational Calculus:
+
+{ qsv | (EXISTS t) (EXISTS z) ( EMPLOYEE(qrstuvwxyz) AND (EXISTS b) (EXISTS c)
+(EXISTS e)
+(EXISTS f) ( WORKS_ON(efg) AND PROJECT(abcd) AND t=e AND f=b AND
+c='Houston' AND
+NOT(EXISTS h) NOT(EXISTS i) ( DEPT_LOCATIONS(hi) AND z=h AND i='Houston'
+))}
+
+(j) List the last names of department managers who have no dependents.
+
+Tuple relational Calculus:
+
+{ e.LNAME | EMPLOYEE(e) AND (EXISTS d) ( DEPARTMENT(d) AND
+e.SSN=d.MGRSSN AND
+NOT(EXISTS x) (DEPENDENT(x) AND e.SSN=x.ESSN) ) }
+
+Domain relational Calculus:
+
+{ s | (EXISTS t) ( EMPLOYEE(qrstuvwxyz) AND (EXISTS c) ( DEPARTMENT(abcd)
+AND t=c
+AND NOT(EXISTS e) (DEPENDENT(efghi) AND e=t) ) }
+
+6.32 - A nested query is query within a query. More specifically, a nested query is a parenthesized
+query that can be used as a value in a number of places, such as instead of a relation or a selection
+condition. Specify the following queries on the database specified in Figure 3.5 using the concept of
+nested queries and the relational operators discussed in this chapter. Also show the result of each
+query as it would apply to the database state of Figure 3.6.
+
+a. List the names of all employees who work in the department that has the employee with the
+highest salary among all employees.
+b. List the names of all employees whose supervisor’s supervisor has '888665555' for SSN.
+c. List the names of employees who make at least $10,000 more than the employee who is paid
+the least in the company.
+
+Answers:
+a) RESULT <-- P LNAME ( S DNO = ( P DNO ( S SALARY = MAX(SALARY) EMPLOYEE ) )
+EMPLOYEE )
+b) RESULT <-- P LNAME ( S SUPERSSN = (P SSN ( S SUPERSSN = ‘88866555’ EMPLOYEE ) )
+EMPLOYEE )
+c) RESULT <-- P LNAME ( S SALARY >= 10000 + P SALARY ( S SALARY = MIN(SALARY)
+EMPLOYEE ) EMPLOYEE )
+
+7.17 - Composite and multi-valued attributes can be nested to any number of levels.
+Suppose we want to design an attribute for a STUDENT entity type to keep track of previous college
+education. Such an attribute will have one entry for each college previously attended, and this entry
+is composed of: college name, start and end dates, degree entries (degrees awarded at that college,
+if any), and transcript entries (courses completed at that college, if any). Each degree entry is formed
+of degree name and the month and year it was awarded, and each transcript entry is formed of a
+course name, semester, year, and grade. Design an attribute to hold this information. Use the
+conventions of Figure 7.5.
+
+Answer:
+{ PreviousEducation ( CollegeName, StartDate, EndDate,
+{ Degree (DegreeName, Month, Year) },
+{ Transcript (CourseName, Semester, Year, Grade) } ) }
+
+7.19 - Consider the ER diagram of Figure 7.20, which shows a simplified schema for an airline
+reservations system. Extract from the ER diagram the requirements and constraints that resulted in
+this schema. Try to be as precise as possible in your requirements and constraints specification.
+
+Answer:
+(1) The database represents each AIRPORT, keeping its unique AirportCode, the AIRPORT Name,
+and the City and State in which the AIRPORT is located.
+
+(2) Each airline FLIGHT has a unique number, the Airline for the FLIGHT, and the Weekdays on
+which the FLIGHT is scheduled (for example, every day of the week except Sunday can be coded as
+X7).
+
+(3) A FLIGHT is composed of one or more FLIGHT LEGs (for example, flight number
+CO1223 from New York to Los Angeles may have two FLIGHT LEGs: leg 1 from New York to
+Houston and leg 2 from Houston to Los Angeles). Each FLIGHT LEG has a DEPARTURE AIRPORT
+and Scheduled Departure Time, and an ARRIVAL AIRPORT and Scheduled Arrival Time.
+
+(4) A LEG INSTANCE is an instance of a FLIGHT LEG on a specific Date (for example, CO1223 leg
+1 on July 30, 1989). The actual Departure and Arrival AIRPORTs and
+Times are recorded for each flight leg after the flight leg has been concluded. The
+Number of available seats and the AIRPLANE used in the LEG INSTANCE are also kept.
+
+(5) The customer RESERVATIONs on each LEG INSTANCE include the Customer Name, Phone,
+and Seat Number(s) for each reservation.
+
+(6) Information on AIRPLANEs and AIRPLANE TYPEs are also kept. For each AIRPLANE
+TYPE (for example, DC-10), the TypeName, manufacturing Company, and
+Maximum Number of Seats are kept. The AIRPORTs in which planes of this type
+CAN LAND are kept in the database. For each AIRPLANE, the AirplaneId, Total number of seats,
+and TYPE are kept.
+
+7.27 - Cardinality ratios often dictate the detailed design of a database. The cardinality ratio
+depends on the real-world meaning of the entity types involved and is defined by the specific
+application. For the binary relationships below, suggest cardinality ratios based on common-sense
+meaning of the entity types. Clearly state any assumptions you make.
+
+Entity 1 Cardinality Ratio Entity 2
+
+1. Student SocialSecurityCard
+
+2. Student Teacher
+
+3. ClassRoom Wall
+
+4. Country CurrentPresident
+
+5. Course TextBook
+
+6. Item (that can be Order
+found in an order)
+
+7. Student Class
+
+8. Class Instructor
+
+9. Instructor Office
+E-bay bid
+10. E-bay Auction
+item
+
+Answer: Entity 1 Cardinality Ratio Entity 2
+
+1. Student 1-many SocialSecurityCard
+
+2. A student may have more
+3. than one social security
+4. card (legally with the
+5. same unique social
+6. security number), and
+7. every social security
+number belongs to a
+unique student.
+
+Student Many-many Teacher
+
+Generally students are
+taught by many teachers
+and a teacher teaches
+many students.
+
+ClassRoom Many-many Wall
+
+Don’t forget that the wall
+is usually shared by
+adjacent rooms.
+
+Country 1-1 CurrentPresident
+
+Assuming a normal
+country under normal
+circumstances having one
+president at a time.
+
+Course Many-many TextBook
+
+A course may have many
+textbooks and a text book
+may be prescribed for
+different courses.
+
+Item (that can be Many-many Order
+found in an order)
+Assuming the same item
+can appear in different
+orders.
+
+Student Many-many Class
+
+One student may take
+several classes. Every
+class usually has several
+students.
+
+Many-to-1
+
+8. Class Assuming that every class Instructor
+has a unique instructor. In
+case instructors were
+allowed to team teach,
+this will be many-many.
+
+1-1
+
+Assuming every instructor
+
+has only one office and it
+
+is not shared. In case of
+
+offices shared by 2
+
+instructors, the
+
+9. Instructor relationship will be 2-1. Office
+
+Conversely, if an
+
+instructor has a joint
+
+appointment (in two
+
+departments) and offices
+
+in both departments, then
+
+the relationship will be 1-
+
+2. In a very general case,
+
+it may be many-many.
+
+1-many
+
+10. E-bay Auction 1 item has many bids and
+item a bid is unique to an item E-bay bid
+
+(assuming a regular
+
+auction format).
+
+7.30 - Illustrate the UML Diagram for exercise 7.16. Your UML design should observe the following
+requirements:
+
+a. The student should have the ability to compute his/her GPA and add or drop majors and
+minors.
+b. Each department should be to able add or delete courses and hire or terminate faculty.
+c. Each instructor should be able to assign or change a grade to a student for a course.
+
+Note: Some of these functions may be spread over multiple classes.
+
+Answer:
+
+STUDENT DEPARTMENT SECTION
+Name: {CS,…} Instructor
+Name: DepartmentCode: {Codes} Semester
+<Name> OfficeNumber Year
+OfficePhone: CourseNumber
+StudentNumber SectionNumber: {1,2,…}
+SocialSecNumber <Phone>
+CurrentAddress: College: {Colleges} GRADE REPORT
+add_course StudentNumber
+<Address> delete_course SectionNumber
+CurrentPhone: hire_faculty LetterGrade: {A,B,C,D,F}
+fire_faculty NumberGrade: {0,1,2,3,4}
+<Phone>
+PermanentAddress: COURSE PREREQUISITE
+CourseName CourseNumber
+<Address> Description PrerequisiteNumber
+PermanentPhone: CourseNumber: {Course}
+SemesterHours INSTRUCTOR
+<Phone> Level Name:
+Birthdate: Date Department
+Sex: {M,F} <Name>
+Class: {F,So,J,Se,G} Phone:
+MajorDepartment
+MinorDepartment <Phone>
+Degree: {BA,BS,…} DepartmentCode
+
+compute_gpa assign_grade
+add_major change_grade
+drop_major
+add_minor
+drop_minor
+
+This one isn’t finished yet. The relationships need to be added and some of the functions should be
+moved to span classes.
+
+8.19 - Identify all the important concepts represented in the library database case study described
+here. In particular, identify the abstraction of classification (entity types and relationship types),
+aggregation, identification, and specialization/generalization. Specify (min, max) cardinality
+constraints whenever possible. List details that will affect the eventual design but which have no
+bearing on the conceptual design. List the semantic separately. Draw an EER diagram of the library
+database.
+Answer:
+
+8.21 - Figure 8.12 shows an example of an EER diagram for a small private airport database that is
+used to keep track of airplanes, their owners, airport employees, and pilots. From the requirements
+for this database, the following information was collected: Each airplane has a registration number
+[Reg#], is of a particular plane type [of_type], and is stored in a particular hangar [stored_in]. Each
+plane_type has a model number [Model], a capacity [Capacity], and a weight [Weight]. Each hangar
+has a number [Number], a capacity [Capacity], and a location [Location]. The database also keeps
+track of the owners of each plane [owns] and the employees who have maintained the plane
+[maintain]. Each relationship instance in owns relates an airplane to an owner and includes the
+purchase date [Pdate]. Each relationship instance in maintain relates to an employee to a service
+record [service]. Each plane undergoes service many times; hence, it is related by [plane_service] o
+
+a number of service records. A service record includes as attributes the date of maintenance [Date],
+the number of hours spent on the work [Hours], and the type of work done [Workcode]. We use a
+weak entity type [service] to represent airplane service, because the airplane registration number is
+used to identify a service record. An owner is either a person or a corporation. Hence, we use a
+union type (category) [owner] that is a subset of the union of corporation [Corporation] and person
+[Person] entity types. Both pilots {Pilot] and employees [Employee] are subclasses of person. Each
+pilot has specific attributes license number [Lic_Num] and restrictions [Restr]; each employee has
+specific attributes salary [Salary] and shift {Shift]. All person entities in the database have data kept
+on their social security number [Ssn], name [Name], address [Address], and telephone number
+[Phone]. For corporation entities, the data kept includes name [Name], address [Address], and
+telephone number [Phone]. The database also keeps track of the types of planes each pilot is
+authorized to fly [Flies] and the types of planes each employee can do maintenance work on
+[Works_on]. Show how the small airport EER schema of Figure 8.12 may be represented in UML
+notation. (Note: We have not discussed how to represent categories (union types) in UML, so you do
+not have to map the categories in this and the following question.)
+
+Answer:
+
+8.27 - Consider the following EER diagram that describes computer systems at a company. Provide
+
+your own attributes and key for each entity type. Supply max cardinality constraints justifying your
+
+choice. Write a complete narrative description of what this EER diagram represents.
+Installed
+
+Computer Software
+
+d InstalledOS U
+UU Operating
+Supports
+SoldWith Laptop Desktop Options System
+
+Options
+
+Accessory Component
+
+d U d
+U Mouse UU
+
+Keyboard U Memory U Video card
+
+Monitor Sound card
+
+9.3 - Try to map the relational schema of Figure 6.14 into an ER schema. This is part of a process
+known as reverse engineering, where a conceptual schema is created for an existing implemented
+database. State any assumptions you make.
+Answer:
+
+Note: We represented BOOK_AUTHORS as a multi-valued attribute of BOOK in the above
+ER diagram. Alternatively, it can be represented as a weak entity type.
+
+9.5 Map the BANK ER schema of Exercise 7.23 (shown in Figure 7.21) into a relational schema.
+Specify all primary keys and foreign keys. Repeat for the AIRLINE schema (Figure 7.20) of Exercise
+7.19 and for the other schemas for Exercises 7.16 through 7.24.
+Partial Answer:
+
+BANK
+CODE NAME ADDR
+ACCOUNT
+ACCTNO BALANCE TYPE BCODE BNO
+CUSTOMER
+SSN NAME PHONE ADDR
+LOAN
+LOANNO AMOUNT TYPE BCODE BNO
+BANK_BRANCH
+BCODE BRANCHNO ADDR
+A_C
+
+SSN ACCTNO
+L_C
+SSN LOANNO
+f.k.
+f.k. f.k.
+f.k.
+f.k. f.k.
+f.k.
+f.k. f.k.
+
+10.23 - A possible DDL corresponding to Figure 3.1 is shown below:
+
+CREATE TABLE STUDENT (
+
+NAME VARCHAR(30) NOT NULL,
+
+SSN CHAR(9) PRIMARY KEY,
+
+HOMEPHONE VARCHAR(14),
+
+ADDRESS VARCHAR(40),
+
+OFFICEPHONE VARCHAR(14),
+
+AGE INT,
+
+GPA DECIMAL(4,3)
+
+);
+
+Discuss the following detailed design decisions:
+a. The choice of requiring NAME to be NON NULL.
+b. Selection of SSN as the PRIMARY KEY.
+c. Choice of field sizes and precision.
+d. Any modification of the fields defined in this database.
+e. Any constraints on individual fields.
+
+Answer:
+a) This means that no Students can exist without a Name.
+
+b) This has a possible problem because there are some restrictions on using SSN as an identifier for
+
+people, hence why most schools assign a student ID. It also does not allow (easily) for a change
+to a student’s SSN if this key is used elsewhere in the DB.
+
+c) Giving Name a size of 30 does not allow for long names (think foreign students), especially since
+it contains a student’s entire name (first, middle, last). Homephone and Officephone, with size
+14, might not allow for overseas or foreign formatted phone numbers. Age is expected to be
+
+(roughly) between 1 and 100, so using an INT is much more space than needed. A TinyInt would
+
+be better, since it allows 0 to 255. The GPA field does not allow for GPA systems that go above
+9 (such as the 10 point scale and the 12 point scale), though these are rare.
+
+d) I would suggest breaking the Name field into three fields: FirstName, MiddleName, and
+LastName. It is more complicated and less specific to search for a student by name if the name
+data is in one field. See question 3.19.
+The same reasoning can be applied to the Homephone and Officephone fields, breaking
+them into multiple fields such as AreaCode, PhoneNumber, Extension, etc.
+Another possible modification is to increase the size of the Homephone, Officephone, and SSN
+fields so that formatting characters can be entered, such as SSN becoming a VARCHAR(11) to
+allow for the two dashes in XXX-YY-ZZZZ.
+
+The table design allows for two phone numbers, Homephone and Officephone, either of
+which may be NULL. This means that some rows will have empty fields for those attributes. A
+solution is then to add a Phone# (SSN, Type, Number) table and remove the two phone number
+fields from the Students table. This allows for any student to have zero or more phone numbers
+of various types, which we can specify (Home, Office, Cell, etc.).
+
+Consider not storing the AGE data and instead storing DateOfBirth. Typically only the year
+component of Age is stored which is less accurate than if DateOfBirth were stored and the age
+computed from it. That is, we can generate Age from DateOfBirth, but we cannot generate
+DateOfBirth from Age.
+
+e) A suggested constraint is on the GPA field, to restrict its values from 0.000 to 4.000. This would,
+however, prevent the (rarely seen) 10 or 12 point grade scale. Another possible constraint is to
+limit Age to be from 0 to 100 (or even a lower maximum value).
